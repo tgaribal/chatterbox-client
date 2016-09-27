@@ -49,7 +49,7 @@ class ChatterBox {
       type: 'GET',
       contentType: 'application/json',
       success: (data) => {
-        for (var i = 0; i < data.results.length; i++) {
+        for (var i = data.results.length - 1; i >= 0; i--) {
           var ourResult = data.results[i];
           cleanMessage(ourResult);
           this.allRooms.add(ourResult.roomname);
@@ -58,7 +58,7 @@ class ChatterBox {
           if ( !(id in this.addedMessages)) {
             this.addedMessages[id] = ourResult;
             if (ourResult[attribute] === value) {
-              this.renderMessage(ourResult, true);
+              this.renderMessage(ourResult);
             }
             this.addedMessages[id] = ourResult;
           }
@@ -97,7 +97,7 @@ class ChatterBox {
     }
   }
 
-  renderMessage (messageObj, reverse) {
+  renderMessage (messageObj) {
     var div1 = wrapDiv(messageObj.text, 'text');
     var div2 = wrapDiv(messageObj.username + ':', 'username');
     var div3 = wrapDiv(messageObj.createdAt + ':', 'createdAt');
@@ -106,13 +106,8 @@ class ChatterBox {
 
     var bigDiv = wrapDiv(div2 + div1 + div3, 'chat');
     var lastAdded;
-    if (reverse) {
-      $('#chats').prepend(bigDiv);
-      lastAdded = $('#chats .username').first();
-    } else {
-      $('#chats').append(bigDiv);
-      lastAdded = $('#chats .username').last();
-    }
+    $('#chats').prepend(bigDiv);
+    lastAdded = $('#chats .username').first();
 
 
     var $text = lastAdded.next('.text');

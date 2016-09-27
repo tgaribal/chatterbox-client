@@ -60,15 +60,21 @@ form input[type=text] {
 }
 
 .chat {
-    padding: 5px;
+    padding: 5px 0 10px 0;
     margin-bottom: 5px;
     background-color: #eee;
+    border: 3px solid lightblue;
+    border-radius: 7px
 }
 
 .chat .username {
     font-weight: 800;
-}
+    padding: 2px 5px;
 
+}
+.chat .text {
+    padding: 5px;
+}
 .chat:hover {
     background-color: #ddd;
 }
@@ -86,5 +92,12 @@ form input[type=text] {
 .friend {
     color: #fff;
     background-color: #0090da;
+    border-radius: 5px;
+}
+
+.createdAt {
+    float: right;
+    font-size: 0.5em;
+    bottom: 5px;
 }
 
