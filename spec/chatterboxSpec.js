@@ -126,4 +126,15 @@ describe('chatterbox', function() {
       });
     });
   });
+
+  describe('Check Inputs', function() {
+    it ('should escape basic special characters', function () {
+      expect(stringClean('$5& #string name')).to.equal('\\$5\\& \\#string name');
+      expect(stringClean('"hello" how are you?')).to.equal('\\\"hello\\\" how are you\\?');
+      expect(stringClean("'test123'")).to.equal('\\\'test123\\\'');
+    });
+    it ('should not modify valid strings', function () {
+      expect(stringClean('abcdefg')).to.equal('abcdefg');
+    });
+  });
 });

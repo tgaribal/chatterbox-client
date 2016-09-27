@@ -40,6 +40,7 @@ class ChatterBox {
       success: (data) => {
         for (var i = 0; i < data.results.length; i++) {
           var ourResult = data.results[i];
+          cleanMessage(ourResult);
           this.allRooms.add(ourResult.roomname);
           this.renderRoom(ourResult.roomname);
           var id = ourResult.objectId;
@@ -150,6 +151,69 @@ var wrapDiv = (text, className) => {
   output += '>';
   output += text + '</div>';
   return output;
+};
+
+var cleanMessage = (messageObj) => {
+  var keys2clean = ['text', 'username', 'roomname'];
+  for (var i = 0; i < keys2clean.length; i ++) {
+    messageObj[keys2clean[i]] = stringClean(messageObj[keys2clean[i]]);
+  }
+};
+
+/*
+var stringClean = (string) => {
+  if (string === undefined) {
+    return 'notUndefined';
+  }
+  if (string.includes("12348")) {
+    //debugger;
+  }
+  var validChar = /\s|\w/;
+  var newString = '';
+  var slashCounter = 0;
+  for (var i = 0; i < string.length; i++) {
+    if ( string[i] === '\\') {
+      slashCounter++;
+    } else {
+      if (validChar.test(string[i]) || (slashCounter % 2) === 0) {
+        newString += string[i];
+      } else {
+        newString += '\\' + string[i];
+      }
+      slashCounter = 0;
+    }
+  }
+  return newString;
+};
+*/
+
+
+var stringClean = (string) => {
+  if (string === undefined) {
+    return 'notUndefined';
+  }
+  var newString = '';
+  var slashCounter = 0;
+  for (var i = 0; i < string.length; i++) {
+    var char = string[i];
+    if(char === '//') {
+      newString += "&#x2f;";
+      slashCounter ++;
+    } else if (char == "&") {
+      newString += "&amp;";
+    } else if (char == "<") {
+      newString += "&lt;";
+    } else if (char == ">") {
+      newString += "&gt;";
+    } else if (char == '"') {
+      newString += "&quot;";
+    } else if (char == "'") {
+      newString += "&#x27";
+    } else {
+      newString += char;
+    }
+  }
+  return newString;
 };
 
 var app = new ChatterBox();
