@@ -129,9 +129,9 @@ describe('chatterbox', function() {
 
   describe('Check Inputs', function() {
     it ('should escape basic special characters', function () {
-      expect(stringClean('$5& #string name')).to.equal('\\$5\\& \\#string name');
-      expect(stringClean('"hello" how are you?')).to.equal('\\\"hello\\\" how are you\\?');
-      expect(stringClean("'test123'")).to.equal('\\\'test123\\\'');
+      expect(stringClean('$5& #str < >')).to.equal('$5&amp; #str &lt; &gt;');
+      expect(stringClean('"hello" /?')).to.equal('&quot;hello&quot; &#x2F;?');
+      expect(stringClean("'test123'")).to.equal('&#x27;test123&#x27;');
     });
     it ('should not modify valid strings', function () {
       expect(stringClean('abcdefg')).to.equal('abcdefg');

@@ -8,6 +8,8 @@ class ChatterBox {
     this.addedRooms = new Set();
     this.addedMessages = {};
     this.server = 'https://api.parse.com/1/classes/messages?order=-createdAt';
+    this.messagesByUser = {};
+    this.friendSet = new Set();
 
   }
 
@@ -17,7 +19,7 @@ class ChatterBox {
 
     $('.submit').click((e) => {
       this.handleSubmit();
-      $('.submit').reset();
+      //$('.submit').reset();
     });
 
     setInterval( () => {
@@ -26,6 +28,15 @@ class ChatterBox {
 
     $('#roomSelect').on('change', (e) => {
       this.currentRoom = $('#roomSelect').val();
+      this.clearMessages();
+      this.fetch();
+    });
+
+    $('.new-room').on('click', () => {
+      var newRoom = prompt('Name your New Room');
+      this.renderRoom(newRoom);
+      $('#roomSelect').val(newRoom);
+      this.currentRoom = newRoom;
       this.clearMessages();
       this.fetch();
     });
@@ -75,6 +86,7 @@ class ChatterBox {
   clearMessages () {
     $('#chats').empty();
     this.addedMessages = {};
+    this.messagesByUser = {};
   }
 
   renderRoom (room) {
@@ -86,9 +98,11 @@ class ChatterBox {
   }
 
   renderMessage (messageObj, reverse) {
-    var div1 = wrapDiv(messageObj.text);
+    var div1 = wrapDiv(messageObj.text, 'text');
     var div2 = wrapDiv(messageObj.username + ':', 'username');
     var div3 = wrapDiv(messageObj.createdAt + ':', 'createdAt');
+
+
 
     var bigDiv = wrapDiv(div2 + div1 + div3, 'chat');
     var lastAdded;
@@ -99,11 +113,28 @@ class ChatterBox {
       $('#chats').append(bigDiv);
       lastAdded = $('#chats .username').last();
     }
+
+
+    var $text = lastAdded.next('.text');
+
+    var user = messageObj.username;
+    if (this.friendSet.has(user)) {
+      $text.addClass('friend');
+    }
+    this.messagesByUser[user] = this.messagesByUser[user] || [];
+    this.messagesByUser[user].push($text);
+
+
     var ourContext = this;
     lastAdded.on('click', function () {
       var user = $(this).text().slice(0, -1);
-      ourContext.clearMessages();
-      ourContext.filter('username', user);
+      //ourContext.clearMessages();
+      //ourContext.filter('username', user);
+      ourContext.friendSet.add(user);
+      var arr = ourContext.messagesByUser[user];
+      for (var i = 0; i < arr.length; i ++) {
+        arr[i].addClass('friend');
+      }
     });
   }
 
@@ -160,55 +191,25 @@ var cleanMessage = (messageObj) => {
   }
 };
 
-/*
-var stringClean = (string) => {
-  if (string === undefined) {
-    return 'notUndefined';
-  }
-  if (string.includes("12348")) {
-    //debugger;
-  }
-  var validChar = /\s|\w/;
-  var newString = '';
-  var slashCounter = 0;
-  for (var i = 0; i < string.length; i++) {
-    if ( string[i] === '\\') {
-      slashCounter++;
-    } else {
-      if (validChar.test(string[i]) || (slashCounter % 2) === 0) {
-        newString += string[i];
-      } else {
-        newString += '\\' + string[i];
-      }
-      slashCounter = 0;
-    }
-  }
-  return newString;
-};
-*/
-
-
 var stringClean = (string) => {
   if (string === undefined) {
     return 'notUndefined';
   }
   var newString = '';
-  var slashCounter = 0;
   for (var i = 0; i < string.length; i++) {
     var char = string[i];
-    if(char === '//') {
-      newString += "&#x2f;";
-      slashCounter ++;
-    } else if (char == "&") {
-      newString += "&amp;";
-    } else if (char == "<") {
-      newString += "&lt;";
-    } else if (char == ">") {
-      newString += "&gt;";
-    } else if (char == '"') {
-      newString += "&quot;";
-    } else if (char == "'") {
-      newString += "&#x27";
+    if (char === '/') {
+      newString += '&#x2F;';
+    } else if (char === '&') {
+      newString += '&amp;';
+    } else if (char === '<') {
+      newString += '&lt;';
+    } else if (char === '>') {
+      newString += '&gt;';
+    } else if (char === '"') {
+      newString += '&quot;';
+    } else if (char === '\'') {
+      newString += '&#x27;';
     } else {
       newString += char;
     }
