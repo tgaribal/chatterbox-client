@@ -61,6 +61,8 @@ class ChatterBox {
               this.renderMessage(ourResult);
             }
             this.addedMessages[id] = ourResult;
+          } else {
+            this.updateTime(ourResult);
           }
         }
       },
@@ -97,15 +99,24 @@ class ChatterBox {
     }
   }
 
+  updateTime (messageObj) {
+    var currentTime = new Date();
+    var time = msToTime(currentTime - new Date(messageObj.createdAt));
+
+  }
   renderMessage (messageObj) {
+    var currentTime = new Date();
+    var time = msToTime(currentTime - new Date(messageObj.createdAt));
+
+
     var div1 = wrapDiv(messageObj.text, 'text');
     var div2 = wrapDiv(messageObj.username + ':', 'username');
-    var div3 = wrapDiv(messageObj.createdAt + ':', 'createdAt');
-
+    var div3 = wrapDiv(time, 'createdAt');
 
 
     var bigDiv = wrapDiv(div2 + div1 + div3, 'chat');
     var lastAdded;
+    
     $('#chats').prepend(bigDiv);
     lastAdded = $('#chats .username').first();
 
@@ -114,7 +125,9 @@ class ChatterBox {
 
     var user = messageObj.username;
     if (this.friendSet.has(user)) {
-      $text.addClass('friend');
+      if ($text.text()) {
+        $text.addClass('friend');
+      }
     }
     this.messagesByUser[user] = this.messagesByUser[user] || [];
     this.messagesByUser[user].push($text);
@@ -123,12 +136,19 @@ class ChatterBox {
     var ourContext = this;
     lastAdded.on('click', function () {
       var user = $(this).text().slice(0, -1);
-      //ourContext.clearMessages();
-      //ourContext.filter('username', user);
-      ourContext.friendSet.add(user);
+      if (!ourContext.friendSet.has(user)) {
+        ourContext.friendSet.add(user);
+      } else {
+        ourContext.friendSet.delete(user);
+      }
       var arr = ourContext.messagesByUser[user];
+      if (!arr || !arr.length) {
+        return;
+      }
       for (var i = 0; i < arr.length; i ++) {
-        arr[i].addClass('friend');
+        if (arr[i].text()) {
+          arr[i].toggleClass('friend');
+        }
       }
     });
   }
@@ -210,6 +230,22 @@ var stringClean = (string) => {
     }
   }
   return newString;
+};
+
+var msToTime = (s) => {
+  var ms = s % 1000;
+  s = (s - ms) / 1000;
+  var secs = s % 60;
+  s = (s - secs) / 60;
+  var mins = s % 60;
+  var hrs = (s - mins) / 60;
+  if (hrs > 0) {
+    return (hrs + ' hours ago');
+  } else if (mins > 0) {
+    return (mins + ' minutes ago');
+  } else {
+    return (secs + ' seconds ago');
+  }
 };
 
 var app = new ChatterBox();
