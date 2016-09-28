@@ -24,7 +24,7 @@ class ChatterBox {
 
     setInterval( () => {
       this.fetch();
-    }, 1000);
+    }, 5000);
 
     $('#roomSelect').on('change', (e) => {
       this.currentRoom = $('#roomSelect').val();
@@ -56,13 +56,12 @@ class ChatterBox {
           this.renderRoom(ourResult.roomname);
           var id = ourResult.objectId;
           if ( !(id in this.addedMessages)) {
-            this.addedMessages[id] = ourResult;
             if (ourResult[attribute] === value) {
               this.renderMessage(ourResult);
             }
-            this.addedMessages[id] = ourResult;
           } else {
-            this.updateTime(ourResult);
+            var recoveredMessage = this.addedMessages[id];
+            this.updateTime(recoveredMessage);
           }
         }
       },
@@ -96,15 +95,31 @@ class ChatterBox {
       var optionString = `<option value="${room}">${room}</option>`;
       $('#roomSelect').append(optionString);
       this.addedRooms.add(room);
+
+      var span = `<span class="sidebarRoom">${room}</span><br>`;
+      $('.sidebar').append(span);
+
+      var $lastRoom = $('.sidebarRoom').last();
+      var ourContext = this;
+      $lastRoom.on('click', function() {
+        //debugger;
+        //var ourRoom = $(this).val();
+        ourContext.currentRoom = room;
+        ourContext.clearMessages();
+        ourContext.fetch();
+      });
     }
   }
 
   updateTime (messageObj) {
     var currentTime = new Date();
     var time = msToTime(currentTime - new Date(messageObj.createdAt));
-
+    messageObj.$time.text(time);
   }
   renderMessage (messageObj) {
+    var id = messageObj.objectId;
+    this.addedMessages[id] = messageObj;
+
     var currentTime = new Date();
     var time = msToTime(currentTime - new Date(messageObj.createdAt));
 
@@ -116,7 +131,7 @@ class ChatterBox {
 
     var bigDiv = wrapDiv(div2 + div1 + div3, 'chat');
     var lastAdded;
-    
+
     $('#chats').prepend(bigDiv);
     lastAdded = $('#chats .username').first();
 
@@ -131,6 +146,9 @@ class ChatterBox {
     }
     this.messagesByUser[user] = this.messagesByUser[user] || [];
     this.messagesByUser[user].push($text);
+
+    var $time = $text.next('.createdAt');
+    messageObj.$time = $time;
 
 
     var ourContext = this;
@@ -160,12 +178,12 @@ class ChatterBox {
     messageObj.text = message;
     messageObj.roomname = this.currentRoom;
     messageObj.username = this.getUserName();
-    console.log(messageObj);
     return messageObj;
   }
 
   send (messageObj) {
     var messageJSON = JSON.stringify(messageObj);
+    var ourContext = this;
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
       url: 'https://api.parse.com/1/classes/messages',
@@ -174,6 +192,9 @@ class ChatterBox {
       contentType: 'application/json',
       success: (data) => {
         console.log('chatterbox: Message sent');
+        messageObj.createdAt = data.createdAt;
+        messageObj.objectId = data.objectId;
+        ourContext.renderMessage(messageObj);
       },
       error: (data) => {
         // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error

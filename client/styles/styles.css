@@ -30,14 +30,39 @@ h1 {
     color: white;
     vertical-align: text-bottom;
     line-height: 90px;
-    border-radius: 7px
+    border-radius: 0 0 10px 10px;
 }
 .roomBox {
     align-content: center;
 }
 
+.image {
+    border-radius: 10px 10px 0 0;
+    background-color: #42a1f4;
+}
 
+.sidebarRoom {
+    position: relative;
+    margin: 20px 0 20px 0;
+    width: 100%;
+    float: left;
+    text-align: left;
+    padding-left: 10px;
+    font-family: Verdana, Geneva, sans-serif;
+}
 
+.sidebar {
+    float: left;
+    background-color: #42f4b9;
+    border-radius: 10px;
+}
+
+img {
+    height: 100px;
+    position: relative;
+    top: 10px;
+    width: auto;
+}
 
 form {
     padding: 20px;
